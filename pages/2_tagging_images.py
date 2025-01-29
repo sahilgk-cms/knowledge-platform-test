@@ -5,7 +5,7 @@ import os
 
 st.title("Tagging images")
 
-input_df = pd.read_csv(r"C:\Users\hp\CMS\knowledge_platform\extracted_tags_images.csv")
+input_df = pd.read_csv(r"extracted_tags_images.csv")
 output_df = []
 images_folder = r"C:\Users\hp\CMS\knowledge_platform\images"
 
