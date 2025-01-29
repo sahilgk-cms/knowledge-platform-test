@@ -7,7 +7,7 @@ st.title("Tagging images")
 
 input_df = pd.read_csv(r"extracted_tags_images.csv")
 output_df = []
-images_folder = r"C:\Users\hp\CMS\knowledge_platform\images"
+images_folder = r"images"
 
 for index, row in input_df.iterrows():
     container = st.container(border = True)
