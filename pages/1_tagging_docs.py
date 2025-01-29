@@ -5,7 +5,7 @@ import os
 
 st.title("Tagging documents - pdfs, ppts, word docs, excel/csv")
 
-input_df = pd.read_csv(r"C:\Users\hp\CMS\knowledge_platform\extracted_tags_docs.csv")
+input_df = pd.read_csv(r"extracted_tags_docs.csv")
 
 output_df = []
 
