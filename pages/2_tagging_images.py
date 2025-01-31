@@ -12,9 +12,12 @@ df = pd.read_csv(r"extracted_tags_images.csv")
 if "approved_tags" not in st.session_state:
     st.session_state.approved_tags = {}
 
-save_dataframe_to_mongodb(dataframe = df, collection = IMG_COLLECTION)
+#save_dataframe_to_mongodb(dataframe = df, collection = IMG_COLLECTION)
 
-input_df = load_dataframe_from_mongodb(collection = IMG_COLLECTION)
+#input_df = load_dataframe_from_mongodb(collection = IMG_COLLECTION)
+
+input_df = df
+
 
 output_df = []
 
@@ -87,7 +90,7 @@ st.download_button("Download data as csv",
                    file_name = "approved_tags_iamges.csv",
                    mime = "text/csv")
 
-save_to_mongodb = st.button("Save to MongoDB")
-if save_to_mongodb:
-    update_dataframe_to_mongodb(dataframe = output_df, collection = IMG_COLLECTION)
+# save_to_mongodb = st.button("Save to MongoDB")
+# if save_to_mongodb:
+#     update_dataframe_to_mongodb(dataframe = output_df, collection = IMG_COLLECTION)
 
