@@ -4,7 +4,8 @@ import requests
 import sys
 from urllib.parse import quote
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import *
+from utils_llm import *
+from utils_gdrive import *
 
 st.title("Catalyst Knowledge Hub")
 st.write("Discover and explore our comprehensive repository of documents and media from across the Catalyst Group's global initiatives")
@@ -47,11 +48,15 @@ if st.button("Search"):
                     st.success(f"Matching images found: {len(files)}")
                     for file in files:
                         file_name = file["file_name"]
+                        file_id = get_file_id_from_parent_folder(parent_folder = IMAGES_FOLDER, file_name = file_name)
+                        file_url = display_image_from_file_id(file_id)
+
                         encoded_file_name = quote(file_name)
                         download_url = f"{API_BASE_URL}/download/{encoded_file_name}?docs_or_images={docs_or_images}"
+
                         with st.container(border = True):
                             st.subheader(file_name)
-                            st.image(download_url)
+                            st.image(file_url)
                             st.markdown(f"[Download]({download_url})", unsafe_allow_html=True)
                     
         except Exception as e:
