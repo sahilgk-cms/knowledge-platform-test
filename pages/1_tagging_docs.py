@@ -15,10 +15,12 @@ if "approved_tags" not in st.session_state:
     st.session_state.approved_tags = {}
 
 #save the dataframe to mongodb if not already done
-save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
+#save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
 
 #load dataframe from mongodb
-input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
+#input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
+
+input_df = df
 
 output_df = []
 
@@ -97,8 +99,8 @@ st.download_button("Download data as csv",
                    mime = "text/csv")
 
 save_to_mongodb = st.button("Save to MongoDB")
-if save_to_mongodb:
-    update_dataframe_to_mongodb(dataframe = output_df, collection = DOC_COLLECTION)
+# if save_to_mongodb:
+#     update_dataframe_to_mongodb(dataframe = output_df, collection = DOC_COLLECTION)
 
 
 
