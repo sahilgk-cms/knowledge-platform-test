@@ -42,7 +42,7 @@ except RefreshError as e:
 
 
 
-drive_service = build("drive", "v3", credentials = credentials)
+drive_service = build("drive", "v3", credentials = credentials, http = http)
 
 DOCUMENTS_FOLDER = "1IWTJYPenJ-JSrjnxTaA-p8-6pkrkjifU"
 IMAGES_FOLDER = "1KZedpRQVC9oZNdv_8ZNyAn_ZrUvveZFM"
