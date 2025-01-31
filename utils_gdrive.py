@@ -11,7 +11,7 @@ import httplib2
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-#http = httplib2.Http(timeout=30)
+
 
 #### Retrieving credentials from local
 # credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
@@ -22,12 +22,12 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 #### Retrieveing credentials from Github
 # SERVICE_ACCOUNT_INFO = os.getenv("GOOGLE_DRIVE_CREDENTIALS")
-# if SERVICE_ACCOUNT_INFO is None:
-#     raise ValueError("Missing GOOGLE_DRIVE_CREDENTIALS environment variable!")
-# credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 #### Retrieving credentials from Streamlit Cloud
 SERVICE_ACCOUNT_INFO = st.secrets["google"]["GOOGLE_DRIVE_CREDENTIALS"]
+
+if SERVICE_ACCOUNT_INFO is None:
+    raise ValueError("Missing GOOGLE_DRIVE_CREDENTIALS environment variable!")
 credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 #########################################################################################################
