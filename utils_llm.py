@@ -30,6 +30,13 @@ Settings.embed_model = OpenAIEmbedding(model = EMBEDDING_MODEL, dimensions=EMBED
 def convert_text_into_llamaindex_docs(text: str, 
                                       chunk_size: str, 
                                       chunk_overlap: str) -> List[llama_index.core.schema.Document]:
+  '''
+  This function converts the text into llamaindex documents
+  Args:
+    text
+  Returns:
+    list of llamaindex documents
+  '''
 
   text_splitter = RecursiveCharacterTextSplitter(chunk_size = chunk_size, chunk_overlap = chunk_overlap)
   split_documents = text_splitter.create_documents([text])
@@ -43,6 +50,13 @@ def convert_text_into_llamaindex_docs(text: str,
   return llama_index_documents
 
 def generate_questions(documents: List[llama_index.core.schema.Document]) -> list:
+  '''
+  This function generates questions from llamaindex documents
+  Args:
+    llamaindex documents
+  Returns:
+    list of questions
+  '''
   llm = OpenAI(model_name = MODEL_NAME)
   dataset_generator = RagDatasetGenerator.from_documents(documents, llm, num_questions_per_chunk = 5)
   rag_dataset = dataset_generator.generate_questions_from_nodes()
