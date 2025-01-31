@@ -3,24 +3,31 @@ from google.oauth2 import service_account
 import os
 import json
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
-#### Running from Local
+#### Retrieving credentials from local
 # credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
 # if credentials_path is None or not os.path.exists(credentials_path):
 #     raise ValueError("Google Drive credentials file is missing or incorrect")
 # with open(credentials_path, "r") as file:
 #     credentials_dict = json.load(file)
 
-#### Running on Streamlit Community
-SERVICE_ACCOUNT_INFO = os.getenv("GOOGLE_DRIVE_CREDENTIALS")
-if SERVICE_ACCOUNT_INFO is None:
-    raise ValueError("Missing GOOGLE_DRIVE_CREDENTIALS environment variable!")
+#### Retrieveing credentials from Github
+# SERVICE_ACCOUNT_INFO = os.getenv("GOOGLE_DRIVE_CREDENTIALS")
+# if SERVICE_ACCOUNT_INFO is None:
+#     raise ValueError("Missing GOOGLE_DRIVE_CREDENTIALS environment variable!")
+# credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
+
+#### Retrieving credentials from Streamlit Cloud
+SERVICE_ACCOUNT_INFO = st.secrets["GOOGLE_DRIVE_CREDENTIALS"]
 credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
+
+#########################################################################################################
 
 credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
 
