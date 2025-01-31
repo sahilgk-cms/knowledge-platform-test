@@ -12,6 +12,7 @@ import os
 import sys
 from llama_index.core.storage.docstore import SimpleDocumentStore
 import llama_index
+import streamlit as st
 import nest_asyncio
 nest_asyncio.apply()
 
@@ -19,7 +20,12 @@ EMBED_DIMENSION = 512
 CHUNK_SIZE = 1024
 CHUNK_OVERLAP = 200
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+#### Retrieving credentials from  local
+#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+#### Retrieving credentials from Streamlit Community
+OPENAI_API_KEY = st.secrets["google"]["OPENAI_API_KEY"]
+
 MODEL_NAME = "gpt-3.5-turbo-0613"
 EMBEDDING_MODEL = "text-embedding-3-small"
 
