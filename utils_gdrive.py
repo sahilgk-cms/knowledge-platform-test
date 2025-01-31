@@ -1,5 +1,7 @@
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
 import os
 import json
 from dotenv import load_dotenv
@@ -29,11 +31,14 @@ credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 #########################################################################################################
 
-credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
+try:
+    credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
+    if credentials.expired or not credentials.vaild:
+        credentials.refresh(Request())
+except RefreshError as e:
+    st.error(f"Failed to refresh credentials: {e}")    
+    
 
-# if SERVICE_ACCOUNT_INFO is None:
-#     raise ValueError("Missing Google Drive Credentials ENvironment variable")
-#credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 
 drive_service = build("drive", "v3", credentials = credentials)
