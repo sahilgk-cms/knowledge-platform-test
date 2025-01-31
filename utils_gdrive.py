@@ -7,11 +7,11 @@ import os
 import json
 from dotenv import load_dotenv
 import streamlit as st
-
+import httplib2
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-http = HttpRequest(timeout=30)
+http = httplib2.Http(timeout=30)
 
 #### Retrieving credentials from local
 # credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
