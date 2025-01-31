@@ -3,9 +3,54 @@ import os
 import requests
 import sys
 from urllib.parse import quote
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils_llm import *
 from utils_gdrive import *
+
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+extracted_tags_docs_path = os.path.join(base_dir, "extracted_tags_docs.csv")
+extracted_tags_docs_df = pd.read_csv(extracted_tags_docs_path)
+
+extracted_tags_images_path = os.path.join(base_dir, "extracted_tags_images.csv")
+extracted_tags_images_df = pd.read_csv(extracted_tags_images_path)
+
+
+def search_documents(tags: str, docs_or_images: str):
+    tags_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
+    if docs_or_images == "Documents":
+        base_folder = DOCUMENTS_FOLDER
+        df = extracted_tags_docs_df
+    elif docs_or_images == "Images":
+        base_folder = IMAGES_FOLDER
+        df = extracted_tags_images_df
+    else:
+        st.error("Invalid selection")
+     
+    for tag in tags_list:
+        filtered_df = df[df["extracted_tags"].str.contains(tag, case = False, na = False)]
+
+    files = []
+    seen_files = set()
+
+    for i in range(0, len(filtered_df)):
+        if filtered_df["file"].iloc[i] in seen_files:
+            continue
+
+        file_id = get_file_id_from_parent_folder(base_folder, filtered_df["file"].iloc[i])
+        text = filtered_df["text"].iloc[i]
+        extracted_tags = filtered_df["extracted_tags"].iloc[i]
+
+        if file_id:
+            seen_files.add(filtered_df["file"].iloc[i])
+            files.append({"file_name": filtered_df["file"].iloc[i],
+                          "text": text,
+                          "extracted_tags": extracted_tags})
+    if not files:
+        st.error("FIles not found")
+    return {"files": files}
+
+
 
 st.title("Catalyst Knowledge Hub")
 st.write("Discover and explore our comprehensive repository of documents and media from across the Catalyst Group's global initiatives")
@@ -21,7 +66,6 @@ if "file_details" not in st.session_state:
 selection = st.radio("Select for", ["Documents", "Images"])
 tags = st.text_input(label="Enter tags separated by commas")
 
-API_BASE_URL = "http://127.0.0.1:8000"
 
 # Search functionality
 if st.button("Search"):
@@ -30,13 +74,10 @@ if st.button("Search"):
             docs_or_images = selection
 
             # Call FastAPI to search for files
-            response = requests.get(
-                f"{API_BASE_URL}/search",
-                params={"tags": tags, "docs_or_images": docs_or_images},
-            )
-            response.raise_for_status()
+            response = search_documents(tags = tags, docs_or_images = docs_or_images)
+          
 
-            files = response.json().get("files", [])
+            files = response.get("files", [])
             if files:
                 # store documents data - file name & extracted text in session states  so that we can use for chat later
                 if docs_or_images == "Documents":
@@ -50,9 +91,7 @@ if st.button("Search"):
                         file_name = file["file_name"]
                         file_id = get_file_id_from_parent_folder(parent_folder = IMAGES_FOLDER, file_name = file_name)
                         file_url = display_image_from_file_id(file_id)
-
-                        encoded_file_name = quote(file_name)
-                        download_url = f"{API_BASE_URL}/download/{encoded_file_name}?docs_or_images={docs_or_images}"
+                        download_url = download_file_from_file_id(file_id)
 
                         with st.container(border = True):
                             st.subheader(file_name)
@@ -84,8 +123,8 @@ if st.session_state.file_details and selection == "Documents":
         with st.expander("Text"):
             st.write(text)
 
-        encoded_file_name = quote(select_file)
-        download_url = f"{API_BASE_URL}/download/{encoded_file_name}?docs_or_images={selection}"
+        file_id = get_file_id_from_parent_folder(parent_folder = DOCUMENTS_FOLDER, file_name = select_file)
+        download_url = download_file_from_file_id(file_id)
         st.markdown(f"[Download]({download_url})", unsafe_allow_html=True)
 
         # Chat Interaction
@@ -101,18 +140,12 @@ if st.session_state.file_details and selection == "Documents":
             if not st.session_state.chat_states[select_file].get("vector_index"):
                 try:
                     with st.spinner("Initializing chat engine....."):
-                        response = requests.post(
-                            f"{API_BASE_URL}/initialize_chat",
-                            json={"file_name": select_file, "text": text},
-                        )
-                        if response.status_code == 200:
-                            response_data = response.json()
-                            st.success(response_data["message"])
-                            st.session_state.chat_states[select_file]["vector_index"] = response_data["vector_index"]
-                            st.session_state.chat_states[select_file]["chat_engine"] = response_data["chat_engine"]
-                            st.session_state.chat_states[select_file]["sample_questions"] = response_data["sample_questions"]
-                        else:
-                            st.error(f"Failed to initialize chat: {response.json().get('detail', 'Unknown error')}")
+                        docs = convert_text_into_llamaindex_docs(text = text, chunk_size = CHUNK_SIZE, chunk_overlap = CHUNK_OVERLAP)
+                        vector_index = embedd_documents_into_vector_index(docs)
+                        st.session_state.chat_states[select_file]["vector_index"] = vector_index
+                        st.session_state.chat_states[select_file]["chat_engine"] = create_chat_engine(vector_index)
+                        st.session_state.chat_states[select_file]["sample_questions"] = generate_questions(docs)
+                        st.success("Chat engine initialized successfully.")
                 except Exception as e:
                     st.error(f"Error: {e}")
 
@@ -132,17 +165,9 @@ if st.session_state.file_details and selection == "Documents":
                     st.session_state.chat_states[select_file]["chat_history"].append({"role": "user", "message": query})
 
                     try:
-                        response = requests.post(
-                            f"{API_BASE_URL}/chat",
-                            json={"file_name": select_file, "query": query},
-                        )
-                        if response.status_code == 200:
-                            response_data = response.json()
-                            answer = response_data["answer"]
-                            st.session_state.chat_states[select_file]["chat_history"].append({"role": "assistant", "message": answer})
-
-                        else:
-                            st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
+                        response = qa_chat(query, chat_engine = st.session_state.chat_states[select_file]["chat_engine"])
+                        answer = response[0]
+                        st.session_state.chat_states[select_file]["chat_history"].append({"role": "assistant", "message": answer})
                     except Exception as e:
                         st.error(f"Error: {e}")
                 
