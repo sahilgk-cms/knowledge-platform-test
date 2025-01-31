@@ -10,3 +10,9 @@ llama-index-llms-openai==0.3.13
 llama-index-agent-openai==0.4.2
 tiktoken==0.8.0
 spacy==3.8.4
+pymongo==4.11
+gspread==6.1.4
+google-auth==2.27.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+google-api-python-client==2.155.0
