@@ -24,7 +24,7 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 # credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 #### Retrieving credentials from Streamlit Cloud
-SERVICE_ACCOUNT_INFO = st.secrets["GOOGLE_DRIVE_CREDENTIALS"]
+SERVICE_ACCOUNT_INFO = st.secrets["google"]["GOOGLE_DRIVE_CREDENTIALS"]
 credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 #########################################################################################################
