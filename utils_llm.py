@@ -24,7 +24,7 @@ CHUNK_OVERLAP = 200
 #OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 #### Retrieving credentials from Streamlit Community
-OPENAI_API_KEY = st.secrets["google"]["OPENAI_API_KEY"]
+OPENAI_API_KEY = st.secrets["openai"]["OPENAI_API_KEY"]
 
 MODEL_NAME = "gpt-3.5-turbo-0613"
 EMBEDDING_MODEL = "text-embedding-3-small"
