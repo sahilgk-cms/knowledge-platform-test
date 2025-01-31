@@ -34,7 +34,7 @@ credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 try:
     credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
-    if credentials.expired or not credentials.vaild:
+    if credentials.expired or not credentials.valid:
         credentials.refresh(Request())
 except RefreshError as e:
     st.error(f"Failed to refresh credentials: {e}")    
