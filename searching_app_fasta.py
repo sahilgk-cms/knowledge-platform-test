@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 import pandas as pd
 import os
 import fastapi
 from urllib.parse import unquote
-from utils import *
+from utils_llm import *
 from pydantic import BaseModel
-
+from utils_gdrive import *
 
 
 class InitilalizeChatPayload(BaseModel):
@@ -22,8 +22,7 @@ app = FastAPI()
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-documents_folder = os.path.join(base_dir, "Documents")
-images_folder = os.path.join(base_dir, "Images")
+
 
 extracted_tags_docs_path = os.path.join(base_dir, "extracted_tags_docs.csv")
 extracted_tags_docs_df = pd.read_csv(extracted_tags_docs_path)
@@ -40,10 +39,10 @@ def search_documents(tags: str = Query(..., description = "Comma separated tags"
     tags_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
 
     if docs_or_images == "Documents":
-        base_folder = documents_folder
+        base_folder = DOCUMENTS_FOLDER
         df = extracted_tags_docs_df
     elif docs_or_images == "Images":
-        base_folder = images_folder
+        base_folder = IMAGES_FOLDER
         df = extracted_tags_images_df
     else:
         raise HTTPException(status_code = 400, detail = "Invalid selection")
@@ -59,14 +58,13 @@ def search_documents(tags: str = Query(..., description = "Comma separated tags"
         if filtered_df["file"].iloc[i] in seen_files:
             continue
 
-        file_path = os.path.join(base_folder, filtered_df["file"].iloc[i])
+        file_id = get_file_id_from_parent_folder(base_folder, filtered_df["file"].iloc[i])
         text = filtered_df["text"].iloc[i]
         extracted_tags = filtered_df["extracted_tags"].iloc[i]
 
-        if os.path.exists(file_path):
+        if file_id:
             seen_files.add(filtered_df["file"].iloc[i])
-            files.append({"file_name": os.path.basename(file_path),
-                          "file_path": file_path,
+            files.append({"file_name": filtered_df["file"].iloc[i],
                           "text": text,
                           "extracted_tags": extracted_tags})
     if not files:
@@ -82,19 +80,19 @@ def get_file(file_name: str,
              docs_or_images: str = Query(..., description = "Documents or Images")):
     
     if docs_or_images == "Documents":
-        base_folder = documents_folder
+        base_folder = DOCUMENTS_FOLDER
         df = extracted_tags_docs_df
     elif docs_or_images == "Images":
-        base_folder = images_folder
+        base_folder = IMAGES_FOLDER
         df = extracted_tags_images_df
     else:
         raise HTTPException(status_code = 400, detail = "Invalid selection")
     
     decoded_file_name = unquote(file_name)
-    file_path = os.path.join(base_folder, decoded_file_name)
-    if os.path.exists(file_path):
-       # headers = {"Content-Disposition": f"inline; filename = '{file_name}'"}
-        return FileResponse(file_path, media_type="application/octet-stream", filename = decoded_file_name)
+    file_id = get_file_id_from_parent_folder(base_folder, decoded_file_name)
+    if file_id:
+        file_url = download_file_from_file_id(file_id)
+        return RedirectResponse(file_url)
     raise HTTPException(status_code = 404, detail = f"{decoded_file_name} not found")
 
 
