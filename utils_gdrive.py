@@ -2,6 +2,7 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
+from googleapiclient.http import HttpRequest
 import os
 import json
 from dotenv import load_dotenv
@@ -10,7 +11,7 @@ import streamlit as st
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-http = Request(timeout=30)
+http = HttpRequest(timeout=30)
 
 #### Retrieving credentials from local
 # credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
