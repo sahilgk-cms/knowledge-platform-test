@@ -1,10 +1,29 @@
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+import os
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-SERVICE_ACCOUNT_FILE = "knowledge-test-449405-c95ab587a67e.json"
 
-credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes = SCOPES)
+
+#### Running from Local
+credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
+if credentials_path is None or not os.path.exists(credentials_path):
+    raise ValueError("Google Drive credentials file is missing or incorrect")
+
+with open(credentials_path, "r") as file:
+    credentials_dict = json.load(file)
+
+credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
+
+# if SERVICE_ACCOUNT_INFO is None:
+#     raise ValueError("Missing Google Drive Credentials ENvironment variable")
+#credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
+
+
 drive_service = build("drive", "v3", credentials = credentials)
 
 DOCUMENTS_FOLDER = "1IWTJYPenJ-JSrjnxTaA-p8-6pkrkjifU"
