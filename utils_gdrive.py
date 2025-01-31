@@ -10,12 +10,17 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 #### Running from Local
-credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
-if credentials_path is None or not os.path.exists(credentials_path):
-    raise ValueError("Google Drive credentials file is missing or incorrect")
+# credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
+# if credentials_path is None or not os.path.exists(credentials_path):
+#     raise ValueError("Google Drive credentials file is missing or incorrect")
+# with open(credentials_path, "r") as file:
+#     credentials_dict = json.load(file)
 
-with open(credentials_path, "r") as file:
-    credentials_dict = json.load(file)
+#### Running on Streamlit Community
+SERVICE_ACCOUNT_INFO = os.getenv("GOOGLE_DRIVE_CREDENTIALS")
+if SERVICE_ACCOUNT_INFO is None:
+    raise ValueError("Missing GOOGLE_DRIVE_CREDENTIALS environment variable!")
+credentials_dict = json.loads(SERVICE_ACCOUNT_INFO)
 
 credentials = service_account.Credentials.from_service_account_info(credentials_dict, scopes = SCOPES)
 
