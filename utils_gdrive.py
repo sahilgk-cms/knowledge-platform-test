@@ -11,7 +11,7 @@ import httplib2
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-http = httplib2.Http(timeout=30)
+#http = httplib2.Http(timeout=30)
 
 #### Retrieving credentials from local
 # credentials_path = os.getenv("GOOGLE_DRIVE_CREDENTIALS_PATH")
@@ -42,7 +42,7 @@ except RefreshError as e:
 
 
 
-drive_service = build("drive", "v3", credentials = credentials, http = http)
+drive_service = build("drive", "v3", credentials = credentials)
 
 DOCUMENTS_FOLDER = "1IWTJYPenJ-JSrjnxTaA-p8-6pkrkjifU"
 IMAGES_FOLDER = "1KZedpRQVC9oZNdv_8ZNyAn_ZrUvveZFM"
