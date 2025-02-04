@@ -104,7 +104,8 @@ for index, row in input_df.iterrows():
                 "extracted_tags": row["extracted_tags"],
                 "approved_tags": st.session_state.approved_tags[file_name]
             }])
-            update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)         
+            st.write("will save to mongodb")
+            #update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)         
 
     output_df.append({
         "index": index,
