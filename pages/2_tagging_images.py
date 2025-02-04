@@ -63,7 +63,7 @@ for index, row in input_df.iterrows():
                     file_ids[file_name] = file_id
 
             file_url = display_image_from_file_id(file_id)
-            st.write(file_url)
+            #st.write(file_url)
             if file_url:
                 display_image(file_url)
                 #st.image(file_url, use_container_width=True, output_format="JPEG")
