@@ -109,11 +109,12 @@ def download_and_resize_image(file_url, size=(300, 300)):  # Adjust size as need
     return None
 
 def display_image(file_url):
-    img = download_and_resize_image(file_url)
-    if img:
-        st.image(img, use_container_width=True)
-    else:
-        st.error("Failed to load image")
+    with st.spinner('Loading image...'):
+        img = download_and_resize_image(file_url)
+        if img:
+            st.image(img, use_container_width=True)
+        else:
+            st.error("Failed to load image")
 
 def download_file_from_file_id(file_id: str) -> str:
     '''
