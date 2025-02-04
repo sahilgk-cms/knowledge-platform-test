@@ -60,12 +60,12 @@ def get_all_file_ids_from_parent_folder(parent_folder: str):
 
 
 def get_missing_file_id(file_name, retries=3):
-    for _ in range(retries):
+    try:
         file_id = get_file_id_from_parent_folder(IMAGES_FOLDER, file_name)
-        if file_id:
-            return file_id
-        time.sleep(1)  # Wait before retrying
-    return None
+        return file_id
+    except Exception as e:
+        st.error(f"Error fetching file ID for {file_name}: {e}")
+        return None
 
 def get_file_id_from_parent_folder(parent_folder: str, file_name: str) -> str:
     '''
