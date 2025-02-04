@@ -103,6 +103,8 @@ def display_image_from_file_id(file_id: str) -> str:
 def download_and_resize_image(file_url, size=(300, 300)):  # Adjust size as needed
     response = requests.get(file_url)
     if response.status_code == 200:
+        img_format = response.headers.get('Content-Type')
+        st.write(f"Image format: {img_format}")
         img = Image.open(BytesIO(response.content))
         img = img.resize(size)
         return img
