@@ -15,12 +15,10 @@ if "approved_tags" not in st.session_state:
     st.session_state.approved_tags = {}
 
 #save the dataframe to mongodb if not already done
-#save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
+save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
 
 #load dataframe from mongodb
-#input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
-
-input_df = df
+input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
 
 output_df = []
 
@@ -61,6 +59,8 @@ for index, row in input_df.iterrows():
             
             #load the previous tags if any
             previous_tags = st.session_state.approved_tags.get(file_name, "")
+            if isinstance(previous_tags, float) and pd.isna(previous_tags):
+                previous_tags = ""
             previous_tags_list = previous_tags.split(", ") if previous_tags else []
             
             selected_tags = st.multiselect(label = "Select tags",
@@ -77,6 +77,17 @@ for index, row in input_df.iterrows():
 
             selected_tags = ", ".join(selected_tags)
             st.session_state.approved_tags[file_name] = selected_tags
+
+        if st.button("Save to MongoDB", key = f"save_{index}"):
+            updated_df = pd.DataFrame([{
+                "index": index,
+                "file": file_name,
+                "text": text,
+                "extracted_tags": row["extracted_tags"],
+                "approved_tags": st.session_state.approved_tags[file_name]
+            }])
+            st.write("will save to MongoDB")
+            #update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)       
 
 
     output_df.append({
@@ -98,9 +109,9 @@ st.download_button("Download data as csv",
                    file_name = "approved_tags_docs.csv",
                    mime = "text/csv")
 
-save_to_mongodb = st.button("Save to MongoDB")
-# if save_to_mongodb:
-#     update_dataframe_to_mongodb(dataframe = output_df, collection = DOC_COLLECTION)
+#save_to_mongodb = st.button("Save to MongoDB")
+#if save_to_mongodb:
+   # update_dataframe_to_mongodb(dataframe = output_df, collection = DOC_COLLECTION)
 
 
 
