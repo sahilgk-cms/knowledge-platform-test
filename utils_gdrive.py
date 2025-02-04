@@ -1,13 +1,15 @@
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
-from google.auth.transport.requests import Request
-from google.auth.exceptions import RefreshError
-from googleapiclient.http import HttpRequest
 import os
 import json
 from dotenv import load_dotenv
 import streamlit as st
-import httplib2
+from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
+import requests
+from PIL import Image
+from io import BytesIO
+from time import time
 load_dotenv()
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -48,6 +50,23 @@ DOCUMENTS_FOLDER = "1IWTJYPenJ-JSrjnxTaA-p8-6pkrkjifU"
 IMAGES_FOLDER = "1KZedpRQVC9oZNdv_8ZNyAn_ZrUvveZFM"
 
 
+#############################################################################################################
+
+def get_all_file_ids_from_parent_folder(parent_folder: str):
+    result = drive_service.files().list(q = f"'{parent_folder}' in parents and trashed = False",
+                                        fields = "files(id, name)"
+                                        ).execute()
+    return {file["name"]: file["id"] for file in result.get("files", [])}
+
+
+def get_missing_file_id(file_name, retries=3):
+    for _ in range(retries):
+        file_id = get_file_id_from_parent_folder(IMAGES_FOLDER, file_name)
+        if file_id:
+            return file_id
+        time.sleep(1)  # Wait before retrying
+    return None
+
 def get_file_id_from_parent_folder(parent_folder: str, file_name: str) -> str:
     '''
     This function gets the file id of the given file present in the parent folder
@@ -76,6 +95,25 @@ def display_image_from_file_id(file_id: str) -> str:
         image_url for display purpose
     '''
     return f"https://lh3.googleusercontent.com/d/{file_id}=s500"
+    #return f"https://drive.google.com/uc?export=view&id={file_id}"
+    #return f"https://drive.google.com/thumbnail?id={file_id}&sz=w1000"
+
+
+@st.cache_data
+def download_and_resize_image(file_url, size=(300, 300)):  # Adjust size as needed
+    response = requests.get(file_url)
+    if response.status_code == 200:
+        img = Image.open(BytesIO(response.content))
+        img = img.resize(size)
+        return img
+    return None
+
+def display_image(file_url):
+    img = download_and_resize_image(file_url)
+    if img:
+        st.image(img, use_container_width=True)
+    else:
+        st.error("Failed to load image")
 
 def download_file_from_file_id(file_id: str) -> str:
     '''
