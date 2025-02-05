@@ -2,7 +2,8 @@ import pymongo
 import pandas as pd
 import streamlit as st
 
-MONGODB_URI = "mongodb://localhost:27017/"
+MONGODB_URI = "mongodb+srv://sahil:c%40talysts@cluster0.avpob.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+#MONGODB_URI = "mongodb://localhost:27017/"
 DATABASE_NAME = "tagging_feedback"
 DOC_COLLECTION = "documents_tagging"
 IMG_COLLECTION = "images_tagging"
