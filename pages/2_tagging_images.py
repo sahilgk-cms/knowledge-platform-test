@@ -117,7 +117,10 @@ for index, row in input_df.iterrows():
                 update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)
 
             #display the approved tags
-            st.markdown(f"🏷️ **Approved Tags:** `{st.session_state.approved_tags[file_name]}`")
+            display_tags = st.session_state.approved_tags[file_name]
+            if isinstance(display_tags, float) and pd.isna(display_tags):
+                display_tags = ""
+            st.markdown(f"🏷️ **Approved Tags:** `{display_tags}`")
      
 
     output_df.append({
