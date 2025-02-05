@@ -96,7 +96,7 @@ for index, row in input_df.iterrows():
                     "extracted_tags": row["extracted_tags"],
                     "approved_tags": st.session_state.approved_tags[file_name]
                 }])
-                update_dataframe_to_mongodb(dataframe = updated_df, collection = DOC_COLLECTION)
+                #update_dataframe_to_mongodb(dataframe = updated_df, collection = DOC_COLLECTION)
 
             #display the approved tags
             st.markdown(f"🏷️ **Approved Tags:** `{st.session_state.approved_tags[file_name]}`")
