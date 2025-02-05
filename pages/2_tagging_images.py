@@ -16,11 +16,11 @@ if "approved_tags" not in st.session_state:
 
 
 #save the csv in mongodb
-#save_dataframe_to_mongodb(dataframe = df, collection = IMG_COLLECTION)
+save_dataframe_to_mongodb(dataframe = df, collection = IMG_COLLECTION)
 
 #load the csv from mongodb
-#input_df = load_dataframe_from_mongodb(collection = IMG_COLLECTION)
-input_df = df
+input_df = load_dataframe_from_mongodb(collection = IMG_COLLECTION)
+
 
 
 output_df = []
@@ -114,7 +114,7 @@ for index, row in input_df.iterrows():
                     "extracted_tags": row["extracted_tags"],
                     "approved_tags": st.session_state.approved_tags[file_name]
                 }])
-                #update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)
+                update_dataframe_to_mongodb(dataframe = updated_df, collection = IMG_COLLECTION)
 
             #display the approved tags
             st.markdown(f"🏷️ **Approved Tags:** `{st.session_state.approved_tags[file_name]}`")
