@@ -15,11 +15,11 @@ if "approved_tags" not in st.session_state:
     st.session_state.approved_tags = {}
 
 #save the dataframe to mongodb if not already done
-#save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
+save_dataframe_to_mongodb(dataframe = df, collection = DOC_COLLECTION)
 
 #load dataframe from mongodb
-#input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
-input_df = df
+input_df = load_dataframe_from_mongodb(collection = DOC_COLLECTION)
+
 output_df = []
 
 #persist the session state for files where there are approved tags
@@ -96,7 +96,7 @@ for index, row in input_df.iterrows():
                     "extracted_tags": row["extracted_tags"],
                     "approved_tags": st.session_state.approved_tags[file_name]
                 }])
-                #update_dataframe_to_mongodb(dataframe = updated_df, collection = DOC_COLLECTION)
+                update_dataframe_to_mongodb(dataframe = updated_df, collection = DOC_COLLECTION)
 
             #display the approved tags
             st.markdown(f"🏷️ **Approved Tags:** `{st.session_state.approved_tags[file_name]}`")
