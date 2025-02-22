@@ -1,21 +1,21 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, status
 from fastapi.responses import FileResponse, RedirectResponse
 import pandas as pd
 import os
 import fastapi
 from urllib.parse import unquote
 from utils_llm import *
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from utils_gdrive import *
 
 
 class InitilalizeChatPayload(BaseModel):
-    file_name: str
-    text: str
+    file_name: str = Field(min_length = 1, description = "Name of the file cannot be empty")
+    text: str = Field(min_length = 1, description = "Text cannot be empty")
 
 class ChatPayload(BaseModel):
-    file_name: str
-    query: str
+    file_name: str = Field(min_length = 1, description = "Name of the file cannot be empty")
+    query: str = Field(min_length = 1, description = "Name of the file cannot be empty")
 
 
 app = FastAPI()
@@ -35,7 +35,9 @@ chat_engines = {}
 
 @app.get("/search")
 def search_documents(tags: str = Query(..., description = "Comma separated tags"),
-                     docs_or_images: str = Query(..., description = "Documents or Images")):
+                     docs_or_images: str = Query(..., description = "Documents or Images"),
+                     status = status.HTTP_200_OK):
+    
     tags_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
 
     if docs_or_images == "Documents":
@@ -77,7 +79,8 @@ def search_documents(tags: str = Query(..., description = "Comma separated tags"
 
 @app.get("/download/{file_name}")
 def get_file(file_name: str,
-             docs_or_images: str = Query(..., description = "Documents or Images")):
+             docs_or_images: str = Query(..., description = "Documents or Images"),
+             status = status.HTTP_200_OK):
     
     if docs_or_images == "Documents":
         base_folder = DOCUMENTS_FOLDER
@@ -97,7 +100,8 @@ def get_file(file_name: str,
 
 
 @app.post("/initialize_chat")
-def initialize_chat(request: InitilalizeChatPayload):
+def initialize_chat(request: InitilalizeChatPayload,
+                    status = status.HTTP_201_CREATED):
     file_name = request.file_name
     text = request.text
 
@@ -124,7 +128,9 @@ def initialize_chat(request: InitilalizeChatPayload):
         raise HTTPException(status_code=500, detail = f"Error initializing chat engine: {e}")
 
 @app.post("/chat")
-def chat(request: ChatPayload):
+def chat(request: ChatPayload,
+         status = status.HTTP_201_CREATED):
+    
     file_name = request.file_name
     query = request.query
 
